@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using CoreUserIdentity.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using CoreUserIdentity.Infrastructures;
 
 namespace CoreUserIdentity
 {
@@ -30,6 +32,8 @@ namespace CoreUserIdentity
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IPasswordValidator<AppUser>, CustomPasswordValidator>();
+
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseSqlServer(
                     Configuration["Data:SportStoreIdentity:ConnectionString"]));
@@ -37,10 +41,10 @@ namespace CoreUserIdentity
             services.AddIdentity<AppUser, IdentityRole>(opts =>
             {
                 opts.Password.RequiredLength = 6;
-                opts.Password.RequireNonAlphanumeric = false;
+                opts.Password.RequireNonAlphanumeric = true;
                 opts.Password.RequireLowercase = false;
-                opts.Password.RequireUppercase = false;
-                opts.Password.RequireDigit = false;
+                opts.Password.RequireUppercase = true;
+                opts.Password.RequireDigit = true;
             })
                 .AddEntityFrameworkStores<AppIdentityDbContext>();
 
