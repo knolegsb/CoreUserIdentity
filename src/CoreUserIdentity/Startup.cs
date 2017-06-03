@@ -34,7 +34,14 @@ namespace CoreUserIdentity
                 options.UseSqlServer(
                     Configuration["Data:SportStoreIdentity:ConnectionString"]));
 
-            services.AddIdentity<AppUser, IdentityRole>()
+            services.AddIdentity<AppUser, IdentityRole>(opts =>
+            {
+                opts.Password.RequiredLength = 6;
+                opts.Password.RequireNonAlphanumeric = false;
+                opts.Password.RequireLowercase = false;
+                opts.Password.RequireUppercase = false;
+                opts.Password.RequireDigit = false;
+            })
                 .AddEntityFrameworkStores<AppIdentityDbContext>();
 
             services.AddMvc();
