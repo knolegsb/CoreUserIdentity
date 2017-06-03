@@ -43,6 +43,8 @@ namespace CoreUserIdentity
                 opts.User.RequireUniqueEmail = true;
                 //opts.User.AllowedUserNameCharacters = "absdefghijklmnopqrstuvwxyz";
 
+                opts.Cookies.ApplicationCookie.LoginPath = "/Users/Login";
+
                 opts.Password.RequiredLength = 6;
                 opts.Password.RequireNonAlphanumeric = true;
                 opts.Password.RequireLowercase = false;
