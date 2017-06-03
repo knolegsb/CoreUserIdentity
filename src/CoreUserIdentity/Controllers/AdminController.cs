@@ -13,10 +13,19 @@ namespace CoreUserIdentity.Controllers
     public class AdminController : Controller
     {
         private UserManager<AppUser> _userManager;
+        private IUserValidator<AppUser> _userValidator;
+        private IPasswordValidator<AppUser> _passwordValidator;
+        private IPasswordHasher<AppUser> _passwordHasher;
 
-        public AdminController(UserManager<AppUser> userManager)
+        public AdminController(UserManager<AppUser> userManager,
+            IUserValidator<AppUser> userValidator,
+            IPasswordValidator<AppUser> passwordValidator,
+            IPasswordHasher<AppUser> passwordHasher)
         {
             _userManager = userManager;
+            _userValidator = userValidator;
+            _passwordValidator = passwordValidator;
+            _passwordHasher = passwordHasher;
         }
 
         public ViewResult Index()
@@ -83,6 +92,69 @@ namespace CoreUserIdentity.Controllers
             {
                 ModelState.AddModelError("", error.Description);
             }
+        }
+
+        public async Task<IActionResult> Edit(string id)
+        {
+            AppUser user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                return View(user);
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(string id, string email, string password)
+        {
+            AppUser user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                user.Email = email;
+                IdentityResult validEmail = await _userValidator.ValidateAsync(_userManager, user);
+
+                if (!validEmail.Succeeded)
+                {
+                    AddErrorsFromResult(validEmail);
+                }
+
+                IdentityResult validPassword = null;
+                if (!string.IsNullOrEmpty(password))
+                {
+                    validPassword = await _passwordValidator.ValidateAsync(_userManager, user, password);
+
+                    if (validPassword.Succeeded)
+                    {
+                        user.PasswordHash = _passwordHasher.HashPassword(user, password);
+                    }
+                    else
+                    {
+                        AddErrorsFromResult(validPassword);
+                    }
+                }
+
+                if ((validEmail.Succeeded && validPassword == null) 
+                    || (validEmail.Succeeded && password != string.Empty && validPassword.Succeeded))
+                {
+                    IdentityResult result = await _userManager.UpdateAsync(user);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        AddErrorsFromResult(result);
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "User Not Found");
+            }
+            return View(user);
         }
     }
 }

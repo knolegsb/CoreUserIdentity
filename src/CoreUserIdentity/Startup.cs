@@ -41,7 +41,7 @@ namespace CoreUserIdentity
             services.AddIdentity<AppUser, IdentityRole>(opts =>
             {
                 opts.User.RequireUniqueEmail = true;
-                opts.User.AllowedUserNameCharacters = "absdefghijklmnopqrstuvwxyz";
+                //opts.User.AllowedUserNameCharacters = "absdefghijklmnopqrstuvwxyz";
 
                 opts.Password.RequiredLength = 6;
                 opts.Password.RequireNonAlphanumeric = true;
