@@ -79,6 +79,8 @@ namespace CoreUserIdentity
             app.UseStaticFiles();
             app.UseIdentity();
             app.UseMvcWithDefaultRoute();
+
+            AppIdentityDbContext.CreateAdminAccount(app.ApplicationServices, Configuration).Wait();
         }
     }
 }
