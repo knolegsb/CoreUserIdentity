@@ -78,6 +78,7 @@ namespace CoreUserIdentity
             app.UseDeveloperExceptionPage();
             app.UseStaticFiles();
             app.UseIdentity();
+            app.UseClaimsTransformation(LocationClaimsProvider.AddClaims);
             app.UseMvcWithDefaultRoute();
 
             AppIdentityDbContext.CreateAdminAccount(app.ApplicationServices, Configuration).Wait();
